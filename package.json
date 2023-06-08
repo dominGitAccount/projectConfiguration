@@ -10,11 +10,20 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "browserslist": [
-    "last 2 version",
-    "> 1%",
-    "not dead"
-  ],
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all",
+      "ie > 9"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version",
+      "ie > 9"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.17.10",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.5",
@@ -24,7 +33,7 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.7.1",
     "css-minimizer-webpack-plugin": "^3.4.1",
-    "eslint": "^8.42.0",
+    "eslint": "^7.15.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-webpack-plugin": "^4.0.1",
     "html-webpack-plugin": "^5.5.0",
@@ -39,7 +48,10 @@
     "mini-css-extract-plugin": "^2.6.0",
     "postcss-loader": "^6.2.1",
     "postcss-preset-env": "^7.5.0",
+    "react-redux": "^8.0.7",
     "react-refresh": "^0.13.0",
+    "redux-devtools-extension": "^2.13.9",
+    "redux-thunk": "^2.4.2",
     "sass": "^1.51.0",
     "sass-loader": "^12.6.0",
     "style-loader": "^3.3.1",
@@ -49,11 +61,12 @@
     "webpack-dev-server": "^4.9.0"
   },
   "dependencies": {
-    "antd": "^4.20.3",
+    "antd": "^5.6.1",
     "clean-webpack-plugin": "^4.0.0",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "react-router-dom": "^6.3.0"
+    "react-router-dom": "^6.3.0",
+    "redux": "^4.2.1"
   },
   "description": ""
 }
