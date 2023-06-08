@@ -1,13 +1,13 @@
+
+// import "core-js/stable";
+// import "regenerator-runtime/runtime";
 import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
-import App from "./App";
-
-import "antd/dist/antd.less";
-
-const root = ReactDOM.createRoot(document.getElementById("app"));
-root.render(
-  <BrowserRouter>
-    <App />
-  </BrowserRouter>
+import ReactDOM from 'react-dom';
+import App from './app';
+if (module && module.hot) {
+  module.hot.accept();
+}
+ReactDOM.render(
+  <App/>,
+  document.getElementById('root')
 );
