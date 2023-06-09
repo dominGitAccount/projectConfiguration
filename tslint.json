@@ -1,0 +1,19 @@
+{
+  "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
+  "linterOptions": {
+    "exclude": ["./public/", "./node_modules/", "./src/theme.js"]
+  },
+  "rules": {
+    "no-console": [
+      true,
+      {
+        "allow": ["warn", "error", "debug", "info"]
+      }
+    ],
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "jsx-no-lambda": false,
+    "member-ordering": false,
+    "no-string-literal": false
+  }
+}

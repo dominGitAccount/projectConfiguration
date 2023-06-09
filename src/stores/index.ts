@@ -10,3 +10,6 @@ export const store = createStore(
   reducer,
   composeWithDevTools(applyMiddleware(thunk))
 );
+
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>;

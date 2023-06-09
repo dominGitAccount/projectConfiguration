@@ -18,6 +18,10 @@ const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 // 需要通过 cross-env 定义环境变量         获取进程上的环境变量
 const isProduction = process.env.NODE_ENV === "production";
+// fork-ts-checker-webpack-plugin 是一个 TypeScript 类型检查工具，它可以在 Webpack 构建过程中进行并行处理以提高构建性能。此插件还可以把类型检查的错误和警告输出到控制台或者生成一个 TypeScript 结果文件
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+// 配置按需加载
+const tsImportPluginFactory = require("ts-import-plugin");
 
 // 将用到的样式loader代码复用
 const getStyleLoaders = (preProcessor) => {
@@ -62,7 +66,7 @@ const getStyleLoaders = (preProcessor) => {
 
 module.exports = {
   // 入口
-  entry: "./src/main.js",
+  entry: "./src/main.tsx",
   // 出口
   output: {
     // 生产模式下输出到dist目录下，开发模式没有输出
@@ -107,6 +111,41 @@ module.exports = {
           {
             test: /\.styl$/,
             use: getStyleLoaders("stylus-loader"),
+          },
+          //* ====== 处理ts类型文件 ====== */
+          {
+            test: /\.(ts|tsx)$/,
+            exclude: [/node_modules/, /lib/], //除去什么文件不处理
+            use: [
+
+              // 配置babel
+              {
+                // 指定加载器
+                loader: "babel-loader",
+                // 设置babel
+                options: {
+                  // 设置预定义的环境
+                  presets: [
+                    [
+                      // 指定环境的插件，使代码可以兼容不同的浏览器
+                      "@babel/preset-env",
+                      // 配置信息
+                      {
+                        // 要兼容的目标浏览器
+                        targets: {
+                          "chrome": "58",
+                          "ie": "11"
+                        },
+                        // 指定corejs的版本  corejs-模拟js运行环境
+                        "corejs": "3",
+                        // 使用corejs的方式 "usage" 表示按需加载
+                        "useBuiltIns": "usage"
+                      }
+                    ]
+                  ]
+                }
+              },
+            ]
           },
           /*=========  处理图片等资源  =============*/
           {
@@ -191,6 +230,12 @@ module.exports = {
           },
         },
       ],
+    }),
+    new ForkTsCheckerWebpackPlugin({
+      typescript: {
+        configFile: path.resolve(__dirname, '../tsconfig.json'),
+        files: path.resolve(__dirname, '../tslint.json'),
+      },
     }),
   ].filter(Boolean),
   /*=========  处理打包chunk文件，分割代码，使打包文件不要放到一个文件中  =============*/
@@ -281,7 +326,7 @@ module.exports = {
   /*=========  webpack解析模块时加载的选项  =============*/
   resolve: {
     // 从.jsx 到.json顺序，如果三个类型都没有就会报错
-    extensions: [".jsx", ".js", ".json"], // 自动补全文件扩展名，让jsx可以使用
+    extensions: [".jsx", ".js", ".ts", ".tsx", ".json"], // 自动补全文件扩展名，让jsx可以使用
   },
   /*=========  自动化配置：运行指令时需要加serve 激活devServer配置开发模式  =============*/
   devServer: {

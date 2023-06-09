@@ -8,10 +8,12 @@
  * @version: 1.0
  */
 import { combineReducers } from "redux";
-const modulesFiles = require.context("./modules/", false, /\.js$/);
+import { IObjTy } from "src/stores/types/layout-types";
 
-let modules = {};
+const modulesFiles = require.context("./modules/", false, /\.ts$/);
+
+let modules: IObjTy = {};
 modulesFiles.keys().forEach((key) => {
-  modules[key.replace(/(\.\/|\.js)/g, "")] = modulesFiles(key).default;
+  modules[key.replace(/(\.\/|\.ts)/g, "")] = modulesFiles(key).default;
 });
 export default combineReducers(modules);

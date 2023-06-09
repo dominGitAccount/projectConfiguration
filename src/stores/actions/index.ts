@@ -1,14 +1,14 @@
 // src/actions/city.js
-import ACTION_TYPE from '../actionTypes';
+import { ACTION_TYPE } from '../actionTypes';
 
-export function initCity(cityName) {
+export const initCity = (cityName?: string) => {
     return {
         type: ACTION_TYPE.INIT_CITY,
         cityName
     }
 }
 
-export function changeCity(cityName) {
+export const changeCity = (cityName?: string) => {
     return {
         type: ACTION_TYPE.CHANGE_CITY,
         cityName

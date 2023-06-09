@@ -1,14 +1,14 @@
 // 路径src/reducers/city.js
-import ACTION_TYPE from '../../actionTypes';
+import { ACTION_TYPE } from '../../actionTypes';
+import { ICity } from '../../types/layout-types';
 
 const defaultState = {
   cityName: "北京"
 }
-export default function city(state = defaultState, action) {
+export default function city(state = defaultState, action: ICity) {
   const { type, cityName } = action;
   switch (type) {
     case ACTION_TYPE.INIT_CITY:
-      console.log(cityName, 1, defaultState)
       return {
         ...state,
         cityName: state.cityName
