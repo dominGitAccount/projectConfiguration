@@ -1,12 +1,13 @@
 import React from "react";
-import { Button } from "antd";
+import { Provider } from "react-redux"
+import ReduxHooks from './pages/redux-hooks';
+import { store } from './stores';
 
 const App = ()=> {
   return (
-    <div>
-      <h1>App</h1>
-      <Button type="primary">按钮</Button>
-    </div>
+    <Provider store={store}>
+      <ReduxHooks/>
+    </Provider>
   );
 }
 
