@@ -66,7 +66,7 @@ const getStyleLoaders = (preProcessor) => {
 
 module.exports = {
   // 入口
-  entry: "./src/main.js",
+  entry: "./src/main.tsx",
   // 出口
   output: {
     // 生产模式下输出到dist目录下，开发模式没有输出
