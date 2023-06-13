@@ -11,6 +11,8 @@ const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin"
 // 获取cross-env定义的环境变量
 const isProduction = process.env.NODE_ENV === "production";
 
+const PROJECT_PATH = path.resolve(__dirname, './');
+
 // 返回处理样式loader函数
 const getStyleLoaders = (pre) => {
   return [
@@ -46,7 +48,7 @@ const getStyleLoaders = (pre) => {
 module.exports = {
   entry: "./src/main.js",
   output: {
-    path: isProduction ? path.resolve(__dirname, "../dist") : undefined,
+    path: isProduction ? path.resolve(PROJECT_PATH, "../dist") : undefined,
     filename: isProduction ? "static/js/[name].[contenthash:10].js" : "static/js/[name].js",
     chunkFilename: isProduction ? "static/js/[name].[contenthash:10].chunk.js" : "static/js/[name].chunk.js",
     assetModuleFilename: "static/media/[hash:10][ext][query]",
@@ -89,7 +91,7 @@ module.exports = {
       // 处理js
       {
         test: /\.jsx?$/,
-        include: path.resolve(__dirname, "../src"),
+        include: path.resolve(PROJECT_PATH, "../src"),
         loader: "babel-loader",
         options: {
           cacheDirectory: true,
@@ -104,13 +106,13 @@ module.exports = {
   // 处理html
   plugins: [
     new EslintWebpackPlugin({
-      context: path.resolve(__dirname, "../src"),
+      context: path.resolve(PROJECT_PATH, "../src"),
       exclude: "node_modules",
       cache: true,
-      cacheLocation: path.resolve(__dirname, "../node_modules/.cache/.eslintcache"),
+      cacheLocation: path.resolve(PROJECT_PATH, "../node_modules/.cache/.eslintcache"),
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, "../public/index.html"),
+      template: path.resolve(PROJECT_PATH, "../public/index.html"),
     }),
     isProduction &&
       new MiniCssExtractPlugin({
@@ -121,8 +123,8 @@ module.exports = {
       new CopyPlugin({
         patterns: [
           {
-            from: path.resolve(__dirname, "../public"),
-            to: path.resolve(__dirname, "../dist"),
+            from: path.resolve(PROJECT_PATH, "../public"),
+            to: path.resolve(PROJECT_PATH, "../dist"),
             globOptions: {
               // 忽略index.html文件
               ignore: ["**/index.html"],
@@ -197,6 +199,12 @@ module.exports = {
   },
   // webpack解析模块加载选项
   resolve: {
+    // 配置文件别名
+    alias: {
+      'src': path.resolve(PROJECT_PATH, '../src'),
+      'components': path.resolve(PROJECT_PATH, '../src/components'),
+      'utils': path.resolve(PROJECT_PATH, '../src/utils')
+    },
     // 自动补全文件扩展名
     extensions: [".jsx", ".js", ".json"],
   },
