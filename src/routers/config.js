@@ -1,15 +1,7 @@
-// import Home from 'src/pages/Home';
-// import About from 'src/pages/About';
-
-// 整体路由列表,根据路由规则,path长的需放在上方,请注意!!!!
-/*
-  {
-    path: '', // 路由
-    component: '', // 组件
-    exact: false,
-    noMenu: true // true没有菜单
-  },
-*/
+import Antv from 'src/pages/antv';
+import Antv1 from 'src/pages/antv1';
+import ShrinkExpandG6 from 'src/pages/ShrinkExpandG6';
+import ShrinkExpandG61 from 'src/pages/ShrinkExpandG61';
 
 const routerAry = []
 // 自动加载modules目录下的 .js 结尾的文件
@@ -20,20 +12,6 @@ requireRouter.keys().forEach(fileName => {
   routerAry.push(...routerConfig?.routes);
 });
 
-// export const routeList = [
-//   {
-//     path: '/about',
-//     component: About,
-//     exact: false,
-//   },
-//   {
-//     path: '/',
-//     component: Home,
-//     exact: false
-//   },
-// ];
-
-
 export const routeList = [
   {
     path: '/login',
@@ -42,6 +20,22 @@ export const routeList = [
       requireAuth: false,
       title: '登录'
     }
+  },
+  {
+    path: '/antv',
+    component: Antv,
+  },
+  {
+    path: '/antv1',
+    component: Antv1,
+  },
+  {
+    path: '/ShrinkExpandG6',
+    component: ShrinkExpandG6
+  },
+  {
+    path: '/ShrinkExpandG61',
+    component: ShrinkExpandG61
   },
   ...routerAry
 ]

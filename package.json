@@ -17,6 +17,9 @@
     "not dead"
   ],
   "devDependencies": {
+    "@antv/data-set": "^0.10.2",
+    "@antv/g6": "3.1.7",
+    "@antv/g6-3.5": "yarn:@antv/g6@3.5",
     "@babel/core": "^7.17.10",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.5",
     "babel-loader": "^8.2.5",
