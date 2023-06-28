@@ -27,6 +27,8 @@ const G6Test1 = () => {
       container: 'mountNode', // String | HTMLElement，必须，在 Step 1 中创建的容器 id 或容器本身
       width: 800, // Number，必须，图的宽度
       height: 500, // Number，必须，图的高度
+      minZoom: 0, //最小缩放比例
+      maxZoom: 2, //最大缩放比例
       /**复杂的布局系统会打破适配的规则，反而会造成更多的困扰----取消自动适配画布 */
       // fitView: true, //设置是否将图适配到画布中,可以防止超出画布或留白太多。
       // fitViewPadding: [20, 40, 50, 20], //画布上的四周留白宽度。
@@ -55,10 +57,17 @@ const G6Test1 = () => {
       /**设置布局样式--- 一般图，树图等 */
       layout: {
         // Object，可选，布局的方法及其配置项，默认为 random 布局。
-        type: 'force', // 指定为力导向布局
+        type: 'force', // 指定为层次布局
         preventOverlap: true, // 防止节点重叠
         // nodeSize: 30        // 节点大小，用于算法中防止节点重叠时的碰撞检测。由于已经在上一节的元素配置中设置了每个节点的 size 属性，则不需要在此设置 nodeSize。
         linkDistance: 200, // 指定边距离为100
+        ranksep: 10, //默认的层间距
+        nodesep: 5, //默认的节点间距
+        rankdir: 'TB', //从上到下  'TB' | 'BT' | 'LR' | 'RL'
+        controlPoints: true, //是否保留布局连线的控制点
+        align: 'center', //节点对齐方式
+        nodesepFunc: d => 50, //设置节点之间的距离
+        ranksepFunc: d => 160, //设置层次之间的距离
       },
       // 节点在默认状态下的样式配置（style）和其他配置
       defaultNode: {
@@ -76,20 +85,38 @@ const G6Test1 = () => {
           // 节点上的标签文本样式配置
           style: {
             fill: '#fff', // 节点标签文字颜色
+            fontSize: 20,
+            cursor: 'pointer',
+            shadowColor: '#000',
+            shadowOffsetX: 4,
+            shadowOffsetY: 4,
+            shadowBlur: 6,
+            userSelect: 'none',
           },
         },
       },
       // 边在默认状态下的样式配置（style）和其他配置
       defaultEdge: {
         // ...                 // 边的其他配置
-        // // 边样式配置
-        // style: {
-        //   opacity: 0.6, // 边透明度
-        //   stroke: 'grey', // 边描边颜色
-        // },
+        // 边样式配置
+        style: {
+          stroke: 'grey', // 边描边颜色
+          lineWidth: 2, //宽度
+          opacity: 0.3, //透明度
+          endArrow: true, //边结束位置有箭头
+        },
         // 边上的标签文本配置
         labelCfg: {
           autoRotate: true, // 边上的标签文本根据边的方向旋转
+          // style: {
+          //   fill: '#000',
+          //   fontSize: 20,
+          //   shadowColor: '#000',
+          //   shadowOffsetX: 5,
+          //   shadowOffsetY: 5,
+          //   shadowBlur: 10,
+          //   cursor: 'pointer',
+          // },
         },
       },
       // 交互管理-交互行为的集合
