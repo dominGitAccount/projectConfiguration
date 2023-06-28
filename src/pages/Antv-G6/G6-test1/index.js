@@ -1,11 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import G6 from '@antv/g6-3.5';
 import './index.less';
 // import { data } from './data';
 
 const G6Test1 = () => {
 
+  let graph = useRef();
+
   useEffect(() => {
+    if (graph.current && graph.current.cfg) {
+      graph.current.destroy();
+      graph.current = null;
+    }
     // 实例化 minimap 插件，实现缩略图功能
     const minimap = new G6.Minimap({
       size: [100, 100],
@@ -17,7 +23,7 @@ const G6Test1 = () => {
     const grid = new G6.Grid();
 
     // 创建关系图
-    const graph = new G6.Graph({
+    graph.current = new G6.Graph({
       container: 'mountNode', // String | HTMLElement，必须，在 Step 1 中创建的容器 id 或容器本身
       width: 800, // Number，必须，图的宽度
       height: 500, // Number，必须，图的高度
@@ -356,28 +362,28 @@ const G6Test1 = () => {
     ); // 该自定义边继承了内置横向三阶贝塞尔曲线边 cubic-horizontal
 
     // 监听节点的 mouseenter 事件
-    graph.on('node:mouseenter', (ev) => {
+    graph.current.on('node:mouseenter', (ev) => {
       // 获得当前鼠标操作的目标节点
       const node = ev.item;
       // 获得目标节点的所有相关边
       const edges = node.getEdges();
       // 将所有相关边的 running 状态置为 true，此时将会触发自定义节点的 setState 函数
-      edges.forEach((edge) => graph.setItemState(edge, 'running', true));
+      edges.forEach((edge) => graph.current.setItemState(edge, 'running', true));
     });
 
     // 监听节点的 mouseleave 事件
-    graph.on('node:mouseleave', (ev) => {
+    graph.current.on('node:mouseleave', (ev) => {
       // 获得当前鼠标操作的目标节点
       const node = ev.item;
       // 获得目标节点的所有相关边
       const edges = node.getEdges();
       // 将所有相关边的 running 状态置为 false，此时将会触发自定义节点的 setState 函数
-      edges.forEach((edge) => graph.setItemState(edge, 'running', false));
+      edges.forEach((edge) => graph.current.setItemState(edge, 'running', false));
     });
 
 
-    // graph.data(data); // 读取数据渲染到图上
-    // graph.render(); // 渲染图
+    // graph.current.data(data); // 读取数据渲染到图上
+    // graph.current.render(); // 渲染图
 
     // 加载远程的数据
     const main = async () => {
@@ -432,45 +438,45 @@ const G6Test1 = () => {
       });
 
       // 配置数据源，渲染
-      graph.data(remoteData);
-      graph.render(); // 渲染图
+      graph.current.data(remoteData);
+      graph.current.render(); // 渲染图
     };
     main();
 
     /**一下方法配合edgeStateStyles及 nodeStateStyles 可以实现不同状态下边及节点的样式改变*/
     /**监听事件，并切换元素的状态 */
     // // 鼠标进入节点
-    // graph.on('node:mouseenter', (e) => {
+    // graph.current.on('node:mouseenter', (e) => {
     //   const nodeItem = e.item; // 获取鼠标进入的节点元素对象
-    //   graph.setItemState(nodeItem, 'hover', true); // 设置当前节点的 hover 状态为 true
+    //   graph.current.setItemState(nodeItem, 'hover', true); // 设置当前节点的 hover 状态为 true
     // });
 
     // // 鼠标离开节点
-    // graph.on('node:mouseleave', (e) => {
+    // graph.current.on('node:mouseleave', (e) => {
     //   const nodeItem = e.item; // 获取鼠标离开的节点元素对象
-    //   graph.setItemState(nodeItem, 'hover', false); // 设置当前节点的 hover 状态为 false
+    //   graph.current.setItemState(nodeItem, 'hover', false); // 设置当前节点的 hover 状态为 false
     // });
 
     // 点击节点
-    graph.on('node:click', (e) => {
+    graph.current.on('node:click', (e) => {
       // 先将所有当前是 click 状态的节点置为非 click 状态
-      const clickNodes = graph.findAllByState('node', 'click');
+      const clickNodes = graph.current.findAllByState('node', 'click');
       clickNodes.forEach((cn) => {
-        graph.setItemState(cn, 'click', false);
+        graph.current.setItemState(cn, 'click', false);
       });
       const nodeItem = e.item; // 获取被点击的节点元素对象
-      graph.setItemState(nodeItem, 'click', true); // 设置当前节点的 click 状态为 true
+      graph.current.setItemState(nodeItem, 'click', true); // 设置当前节点的 click 状态为 true
     });
 
     // 点击边
-    graph.on('edge:click', (e) => {
+    graph.current.on('edge:click', (e) => {
       // 先将所有当前是 click 状态的边置为非 click 状态
-      const clickEdges = graph.findAllByState('edge', 'click');
+      const clickEdges = graph.current.findAllByState('edge', 'click');
       clickEdges.forEach((ce) => {
-        graph.setItemState(ce, 'click', false);
+        graph.current.setItemState(ce, 'click', false);
       });
       const edgeItem = e.item; // 获取被点击的边元素对象
-      graph.setItemState(edgeItem, 'click', true); // 设置当前边的 click 状态为 true
+      graph.current.setItemState(edgeItem, 'click', true); // 设置当前边的 click 状态为 true
     });
   }, [])
 
