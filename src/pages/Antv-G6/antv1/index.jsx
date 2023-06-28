@@ -1,6 +1,6 @@
 import React from 'react';
 import TopoTree from './components/TopoTree';
-import topologyData from 'src/pages/antv1/components/topologyData';
+import topologyData from './components/topologyData';
 
 const Antv = () => {
   let tachInfo = { systemCode: '99710640000', serviceName: 'communication_service', systemName: '统一柜面' };

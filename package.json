@@ -18,7 +18,7 @@
   ],
   "devDependencies": {
     "@antv/data-set": "^0.10.2",
-    "@antv/g6": "3.1.7",
+    "@antv/g6": "^4.8.17",
     "@antv/g6-3.5": "yarn:@antv/g6@3.5",
     "@babel/core": "^7.17.10",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.5",
@@ -57,5 +57,10 @@
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-router-dom": "5.1.2"
+  },
+  "resolutions": {
+    "//": "Used to install imagemin dependencies, because imagemin may not be installed in China. If it is abroad, you can delete it",
+    "bin-wrapper": "npm:bin-wrapper-china",
+    "rollup": "^2.72.0"
   }
 }

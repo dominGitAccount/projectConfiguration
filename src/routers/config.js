@@ -1,7 +1,3 @@
-import Antv from 'src/pages/antv';
-import Antv1 from 'src/pages/antv1';
-import ShrinkExpandG6 from 'src/pages/ShrinkExpandG6';
-import ShrinkExpandG61 from 'src/pages/ShrinkExpandG61';
 
 const routerAry = []
 // 自动加载modules目录下的 .js 结尾的文件
@@ -20,22 +16,6 @@ export const routeList = [
       requireAuth: false,
       title: '登录'
     }
-  },
-  {
-    path: '/antv',
-    component: Antv,
-  },
-  {
-    path: '/antv1',
-    component: Antv1,
-  },
-  {
-    path: '/ShrinkExpandG6',
-    component: ShrinkExpandG6
-  },
-  {
-    path: '/ShrinkExpandG61',
-    component: ShrinkExpandG61
   },
   ...routerAry
 ]
