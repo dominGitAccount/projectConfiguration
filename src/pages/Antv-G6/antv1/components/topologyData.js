@@ -6,29 +6,35 @@ let nodeData = {
   combos: [
     {
       id: 'A',
-      label: 'combo A',
+      label: '分组 A',
       // type:'root',
+      collapsed: true,
       style: {
         fill: '#C4E3B2',
         stroke: '#aaa',
+        opacity: 0.7,
       },
     },
     {
       id: 'B',
-      label: 'combo B',
+      label: '分组 B',
+      collapsed: true,
       style: {
         stroke: '#99C0ED',
         fill: '#99C0ED',
+        opacity: 0.7,
       },
     },
     {
       id: 'C',
-      label: 'combo C',
+      label: '分组 C',
+      collapsed: true,
       style: {
         stroke: '#eee',
         fill: '#eee',
+        opacity: 0.7,
       },
-    },
+    }
   ],
 };
 let data = [{
@@ -862,25 +868,25 @@ let newNodes = topoData.nodes.reduce((cur, next) => {
   return cur;
 }, []);
 newNodes.forEach((e, index) => {
-  if(e.name.includes('192.168.2.191')){
+  if (e.name.includes('192.168.2.191')) {
     nodeData.nodes.push({
       ...e,
       label: e.name || '',
       comboId: 'A',
     });
-  }if(e.name.includes('192.168.2.193')){
+  }else if (e.name.includes('192.168.2.193')) {
     nodeData.nodes.push({
       ...e,
       label: e.name || '',
       comboId: 'B',
     });
-  }if(e.name.includes('192.168.2.190')){
+  }else if (index >= 3 && index <= 9) {
     nodeData.nodes.push({
       ...e,
       label: e.name || '',
       comboId: 'C',
     });
-  }else{
+  }else {
     nodeData.nodes.push({
       ...e,
       label: e.name || '',

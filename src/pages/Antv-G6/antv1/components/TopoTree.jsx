@@ -126,6 +126,7 @@ const TopoTree = ({
       },
       groupByTypes: false,
       defaultCombo: {
+        size: [200, 100],
         type: 'cRect',
       },
       comboStateStyles: {
@@ -223,10 +224,6 @@ const TopoTree = ({
       graph.current?.collapseExpandCombo(comboId || '');
     });
 
-    // 初始化时，combos为收缩状态
-    topologyData.combos.map(combos=>{
-      // graph.current?.collapseExpandCombo(combos.id || '');
-    })
   };
 
   const registerNode = () => {

@@ -2,7 +2,7 @@ import { Spin, Card } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import NodeToolTips from './NodeTooltips';
 import './TopoTree.less';
-import G6 from '@antv/g6';
+import G6 from '@antv/g6-3.5';
 import { stringify } from 'qs';
 import 'src/assets/topo/iconfont/iconfont.css';
 
