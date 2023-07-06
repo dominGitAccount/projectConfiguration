@@ -64,6 +64,7 @@ const TopoTree = ({
       maxZoom: 2,
       layout: {
         type: 'dagre',
+        sortByCombo: false,
         ranksep: 10,
         nodesep: 5,
         controlPoints: true,
@@ -111,6 +112,7 @@ const TopoTree = ({
       modes: {
         default: [
           'drag-canvas',
+          'drag-combo',
           {
             type: 'drag-node',
             enableDelegate: true,
@@ -120,7 +122,11 @@ const TopoTree = ({
             // sensitivity: 2,
             minZoom: 0,
           },
-          { type: "drag-combo", enableOptimize: true, onlyChangeComboSize: true },
+          // 如果没有定制化需求，设置了这个可以不用设置combo:dblclick
+          {
+            type: 'collapse-expand-combo', //支持双击 Combo 收起和展开 Combo ，收起 Combo 以后，隐藏 Combo 中的所有节点
+            relayout: false,
+          },
         ],
         // default: ['drag-node', 'drag-canvas', 'zoom-canvas'],
       },
@@ -128,6 +134,11 @@ const TopoTree = ({
       defaultCombo: {
         size: [100, 50],
         type: 'cRect',
+        style:{
+          fillOpacity: 0.1,
+          fill: '#99C0ED',
+          stroke: '#aaa',
+        }
       },
       comboStateStyles: {
         dragenter: {
