@@ -3,39 +3,7 @@
 let nodeData = {
   nodes: [],
   edges: [],
-  combos: [
-    {
-      id: 'A',
-      label: '分组 A',
-      // type:'root',
-      collapsed: true,
-      style: {
-        fill: '#C4E3B2',
-        stroke: '#aaa',
-        opacity: 0.7,
-      },
-    },
-    {
-      id: 'B',
-      label: '分组 B',
-      collapsed: true,
-      style: {
-        stroke: '#99C0ED',
-        fill: '#99C0ED',
-        opacity: 0.7,
-      },
-    },
-    {
-      id: 'C',
-      label: '分组 C',
-      collapsed: true,
-      style: {
-        stroke: '#eee',
-        fill: '#eee',
-        opacity: 0.7,
-      },
-    }
-  ],
+  combos: [],
 };
 let data = [{
 
@@ -129,7 +97,7 @@ let data = [{
 
       ],
 
-      "isWarning": 0,
+      "isWarning": 1,
 
       "typeName": "redis",
 
@@ -441,7 +409,7 @@ let data = [{
 
       ],
 
-      "isWarning": 0,
+      "isWarning": 1,
 
       "typeName": "mysql",
 
@@ -547,7 +515,7 @@ let data = [{
 
     {
 
-      "isWarning": 0,
+      "isWarning": 1,
 
       "parentApplicationServiceType": 0,
 
@@ -855,7 +823,42 @@ let data = [{
 
   ],
 
-  "serviceName": "sycmdb-resource"
+  "serviceName": "sycmdb-resource",
+
+  combos: [
+    {
+      id: 'A',
+      label: '192.168.2.191',
+    },
+    {
+      id: 'B',
+      label: '192.168.2.193',
+    },
+    {
+      id: 'C',
+      label: '192.168.2.192',
+    },
+    {
+      id: 'D',
+      label: '分组 D',
+      parentId: 'C',
+    },
+    {
+      id: 'E',
+      label: '分组 E',
+      parentId: 'A',
+    },
+    {
+      id: 'F',
+      label: '分组 F',
+      parentId: 'D',
+    },
+    {
+      id: 'G',
+      label: '分组 G',
+      parentId: 'C',
+    },
+  ]
 
 }]
 
@@ -868,34 +871,93 @@ let newNodes = topoData.nodes.reduce((cur, next) => {
   return cur;
 }, []);
 newNodes.forEach((e, index) => {
-  if (e.name.includes('192.168.2.191')) {
+  if (index === 1) {
     nodeData.nodes.push({
       ...e,
       label: e.name || '',
       comboId: 'A',
     });
-  }else if (e.name.includes('192.168.2.193')) {
+  } else if (index === 2 || index === 3) {
+    nodeData.nodes.push({
+      ...e,
+      label: e.name || '',
+      comboId: 'E',
+    });
+  } else if (e.name.includes('192.168.2.193')) {
     nodeData.nodes.push({
       ...e,
       label: e.name || '',
       comboId: 'B',
     });
-  }else if (index >= 3 && index <= 9) {
+  } else if (index === 4) {
     nodeData.nodes.push({
       ...e,
       label: e.name || '',
       comboId: 'C',
     });
-  }else {
+  } else if (index === 7) {
     nodeData.nodes.push({
       ...e,
       label: e.name || '',
+      comboId: 'G',
+    });
+  } else if (index === 5 || index === 6) {
+    nodeData.nodes.push({
+      ...e,
+      label: e.name || '',
+      comboId: 'D',
+    });
+  } else if (index === 8 || index === 9) {
+    nodeData.nodes.push({
+      ...e,
+      label: e.name || '',
+      comboId: 'F',
+    });
+  } else {
+    nodeData.nodes.push({
+      ...e,
+      label: e.name || '',
+      comboId: '',
     });
   }
 
 });
+
+const handleCombos = () => {
+  let newCombos = [];
+
+  topoData.combos.forEach((combo, index) => {
+    newCombos.push({
+      ...combo,
+      collapsed: true,
+      style: {},
+    });
+  });
+
+  const changeWarningComboStyle = (index) => {
+    newCombos[index].style.stroke = 'red';
+  }
+
+  const loopComboParents = (combo) => {
+    if (combo.parentId) {
+      let comboIndex = newCombos.findIndex(item => item.id === combo.parentId);
+      changeWarningComboStyle(comboIndex);
+      loopComboParents(newCombos[comboIndex])
+    }
+  }
+
+  newCombos.forEach((combo, index) => {
+    let node = nodeData.nodes.find(node => node.comboId === combo.id);
+    if (node.isWarning) {
+      changeWarningComboStyle(index);
+      loopComboParents(combo);
+    }
+  })
+
+  return newCombos;
+}
+
+nodeData.combos = handleCombos();
 nodeData.edges = topoData.edges;
-
-
 
 export default nodeData;

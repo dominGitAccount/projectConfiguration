@@ -25,7 +25,7 @@ const TopoTree = ({
 
   useEffect(() => {
     registerNode();
-    if (graph.current && graph.current._cfg) {
+    if (graph.current && (graph.current._cfg || graph.current.cfg)) {
       graph.current.destroy();
       graph.current = null;
     }
@@ -126,7 +126,7 @@ const TopoTree = ({
       },
       groupByTypes: false,
       defaultCombo: {
-        size: [200, 100],
+        size: [100, 50],
         type: 'cRect',
       },
       comboStateStyles: {
@@ -136,6 +136,7 @@ const TopoTree = ({
         }
       },
     });
+
     graph.current.data(nodeData);
     graph.current.render();
     graph.current.fitView();
@@ -219,9 +220,17 @@ const TopoTree = ({
 
     // 双击combo
     graph.current.on("combo:dblclick", (e) => {
-      const comboId = e.item._cfg.model.id;
-      // 展开或收缩指定的combo
-      graph.current?.collapseExpandCombo(comboId || '');
+      // e.item就是当前点击的combo实例;  
+      graph.current?.collapseExpandCombo(e.item); //展开或收起当前combo
+      if (!e.item._cfg.model.collapsed) {  //当前combo是展开状态
+        //combo.getCombos获取当前combo下所有的子combo
+        let childCombos = e.item.getCombos();
+        childCombos?.forEach((combo) => {
+          if (!combo._cfg.model.collapsed) { //如果子combo是展开状态，收起子combo
+            graph.current?.collapseExpandCombo(combo || '');
+          }
+        })
+      }
     });
 
   };
@@ -328,6 +337,7 @@ const TopoTree = ({
         },
         draw(cfg, group) {
           const icon = setNodeIcon(cfg.applicationServiceType, cfg.isWarning, cfg.objType);
+          let stroke = cfg.isWarning === 1 ? 'red' : icon[3]
           const shape = group.addShape('rect', {
             attrs: {
               x: -100,
@@ -335,7 +345,7 @@ const TopoTree = ({
               width: 200,
               height: 120,
               radius: 10,
-              stroke: icon[3],
+              stroke,
               fill: 'transparent',
               lineWidth: 3,
               cursor: 'pointer',
@@ -350,7 +360,7 @@ const TopoTree = ({
                 textAlign: 'center',
                 textBaseline: 'middle',
                 text: cfg.label ? cfg.label : cfg.serviceName,
-                fill: '#000',
+                fill: cfg.isWarning === 1 ? 'red' : '#000',
               },
             });
           }
@@ -392,7 +402,6 @@ const TopoTree = ({
 
     G6.registerCombo('cRect', {
       drawShape: function drawShape(cfg, group) {
-        console.log('cRect', group)
         const self = this;
         cfg.padding = cfg.padding || [50, 20, 20, 20];
         const style = self.getShapeStyle(cfg);
