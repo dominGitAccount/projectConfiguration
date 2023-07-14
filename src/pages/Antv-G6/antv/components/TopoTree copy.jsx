@@ -6,16 +6,6 @@ import G6 from '@antv/g6-3.5';
 import { stringify } from 'qs';
 import 'src/assets/topo/iconfont/iconfont.css';
 
-const EXPAND_ICON = function EXPAND_ICON(x, y, r) {
-  return [
-    ['M', x, y],
-    ['M', x + 2, y],
-    ['L', x + 2 * r - 2, y],
-    ['M', x + r, y - r + 2],
-    ['L', x + r, y + r - 2],
-  ];
-};
-
 
 let jumpWindowIp = 'https://25.8.49.30:8104'
 
@@ -51,7 +41,6 @@ const TopoTree = ({
       initTopo(topologyData);
     }
   }, [topologyData]);
-
 
   const initTopo = nodeData => {
     if (!nodeData || !nodeData.edges || !nodeData.nodes) {
@@ -139,38 +128,9 @@ const TopoTree = ({
     graph.current.data(nodeData);
     graph.current.render();
     graph.current.fitView();
-
-    nodeData.nodes.forEach(node => {
-      // 判断该节点是不是头结点，则隐藏该节点
-      if (nodeData.edges.findIndex(item => item.target === node.id) > -1) {
-        graph.current.hideItem(node.id);
-      }
-    })
-    // 单击该节点
-    graph.current.on('node:click', ev => {
-      if (ev.target.get('name') === 'add-rect') {
-        // 节点实例
-        let enterNode = ev.item.getModel();
-        nodeData.edges.forEach(edge => {
-          // 找出该节点下的所有子节点---edge.target
-          if (edge.source === enterNode.id) {
-            const item = graph.current.findById(edge.target);
-            // 子节点的显示状态
-            const visible = item.isVisible();
-            if (visible) { //显示---点击父节点则隐藏该节点
-              graph.current.hideItem(edge.target)
-            } else { //隐藏---点击父节点则显示该节点
-              graph.current.showItem(item)
-            }
-          }
-        })
-      }
-    })
-
     graph.current.get('canvas').set('supportCSSTransform', true);
     // 图谱节点双击事件
     graph.current.on('node:dblclick', ev => {
-      if (ev.target.get('name') === 'add-rect') return;
       // 跳转至根因分析
       const { name, systemCode } = ev.item._cfg.model;
       const commonParams = {
@@ -197,7 +157,7 @@ const TopoTree = ({
         // }
       } else {
         // if (process.env.UMI_ENV === 'core' || !process.env.UMI_ENV) {
-        ip = window.location.origin;
+          ip = window.location.origin;
         window.open(
           `${ip}/callchain/#/callchain/callChain/serviceRootCauseCrossSystem?${stringify(
             commonParams
@@ -355,7 +315,7 @@ const TopoTree = ({
               y: -50,
               width: 200,
               height: 120,
-              radius: topologyData.edges.findIndex(item => item.source === cfg.id) > -1 ? [0, 0, 10, 10] : 10,
+              radius: 10,
               stroke: icon[3],
               fill: 'transparent',
               lineWidth: 3,
@@ -386,39 +346,6 @@ const TopoTree = ({
               fontSize: icon[2] / 1.2,
             },
           });
-          // 下面有子节点的增加一个图标
-          if (topologyData.edges.findIndex(item => item.source === cfg.id) > -1) {
-            group.addShape('rect', {
-              attrs: {
-                x: -100,
-                y: -70,
-                width: 200,
-                height: 20,
-                radius: [10, 10, 0, 0],
-                cursor: 'pointer',
-                stroke: icon[3], //边框
-                lineWidth: 3,
-                fill: 'transparent',
-              },
-              draggable: true,
-              name: 'add-rect'
-            });
-            group.addShape('marker', {
-              attrs: {
-                fill: '#fff',
-                x: -10,
-                y: -60,
-                r: 8,
-                symbol: EXPAND_ICON,
-                stroke: icon[3],
-                lineWidth: 2,
-                cursor: 'pointer',
-                zIndex: 999,
-              },
-              draggable: true,
-              name: 'add-marker'
-            });
-          }
           return shape;
         },
         // setState(name, value, item) {
@@ -446,7 +373,7 @@ const TopoTree = ({
   };
   const setNodeIcon = (type, isWarning, objType) => {
     let nodeIcon = [];
-    if (type) {
+    if(type) {
       type = type.toString();
     } else {
       type = '';

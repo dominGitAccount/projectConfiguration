@@ -310,7 +310,7 @@ let data = [{
       objType: 'SAAS',
       _labels: ['AppNode', 'sycmdb-resource_123456789'],
     }],
-  
+
   systemCode: '123456789',
   edges: [
     { source: 'sycmdb-resource#123456789', target: 'REDIS_192.168.2.191:7000#123456789' },
@@ -332,144 +332,83 @@ let data = [{
     { source: 'redis_192.168.2.193_7000#', target: '192.168.2.193#' },
     { source: 'sycmdb-resource#123456789', target: 'REDIS_192.168.2.192:7001#123456789' },
   ],
-  
-  serviceName: 'sycmdb-resource',
 
-  combos: [
-    {
-      id: 'A',
-      label: '192.168.2.191',
-    },
-    {
-      id: 'B',
-      label: '192.168.2.193',
-    },
-    {
-      id: 'C',
-      label: '192.168.2.192',
-    },
-    {
-      id: 'D',
-      label: '分组 D',
-      parentId: 'C',
-    },
-    {
-      id: 'E',
-      label: '分组 E',
-      // parentId: 'A',
-    },
-    {
-      id: 'F',
-      label: '分组 F',
-      parentId: 'D',
-    },
-    {
-      id: 'G',
-      label: '分组 G',
-      parentId: 'C',
-    },
-  ]
+  serviceName: 'sycmdb-resource',
 
 }]
 
 let topoData = { ...data[0] };
 let reduceObj = {};
-let newNodes = topoData.nodes.reduce((cur, next) => {
+nodeData.nodes = topoData.nodes.reduce((cur, next) => {
   if (!reduceObj[next.id]) {
-    (reduceObj[next.id] = true && cur.push(next))
+    (reduceObj[next.id] = true && cur.push({ ...next, label: next.name || '' }))
   }
   return cur;
 }, []);
-newNodes.forEach((e, index) => {
-  if (index === 1) {
-    nodeData.nodes.push({
-      ...e,
-      label: e.name || '',
-      comboId: 'A',
-    });
-  } else if (index === 2 || index === 3) {
-    nodeData.nodes.push({
-      ...e,
-      label: e.name || '',
-      comboId: 'E',
-    });
-  } else if (e.name.includes('192.168.2.193')) {
-    nodeData.nodes.push({
-      ...e,
-      label: e.name || '',
-      comboId: 'B',
-    });
-  } else if (index === 4) {
-    nodeData.nodes.push({
-      ...e,
-      label: e.name || '',
-      comboId: 'C',
-    });
-  } else if (index === 7) {
-    nodeData.nodes.push({
-      ...e,
-      label: e.name || '',
-      comboId: 'G',
-    });
-  } else if (index === 5) {
-    nodeData.nodes.push({
-      ...e,
-      label: e.name || '',
-      comboId: 'D',
-    });
-  } else if (index === 8 || index === 9  || index === 6) {
-    nodeData.nodes.push({
-      ...e,
-      label: e.name || '',
-      comboId: 'F',
-    });
-  } else {
-    nodeData.nodes.push({
-      ...e,
-      label: e.name || '',
-      comboId: '',
-    });
-  }
 
+
+let handleNodesData = (nodeId, comboId) => {
+  // 排除没有子节点的第一个节点
+  if (topoData.edges.findIndex(item => item.target === nodeId) === -1) return;
+  let nodeIndex = nodeData.nodes.findIndex(node => node.id === nodeId);
+  if (nodeIndex === -1 || nodeData.nodes[nodeIndex].comboId) return;
+  nodeData.nodes[nodeIndex].comboId = comboId;
+  topoData.edges.forEach(edge => {
+    // 循环遍历，沿着当前节点边的source网上找
+    if (edge.target === nodeId) { handleNodesData(edge.source, comboId) }
+  })
+};
+let combos = [];
+topoData.edges.forEach(edge => {
+  if (
+    topoData.edges.findIndex(item => item.source === edge.target) === -1 //图中最末尾的节点，没有子节点
+    && combos.findIndex(item => item.target === edge.target) === -1 //combos分组中没有该节点，根据末节点的个数定义分组个数
+  ) {
+    handleNodesData(edge.target, combos.length + 1);
+    combos.push({
+      label: `分组${combos.length + 1}`,
+      id: `${combos.length + 1}`,
+      target: edge.target,
+      collapsed: true, //默认是收起状态
+    })
+  }
 });
 
-const handleCombos = () => {
-  let newCombos = [];
+// const handleCombos = (combos) => {
+//   let newCombos = [];
 
-  topoData.combos.forEach((combo, index) => {
-    newCombos.push({
-      ...combo,
-      collapsed: true,
-      style: {},
-    });
-  });
+//   combos.forEach((combo, index) => {
+//     newCombos.push({
+//       ...combo,
+//       collapsed: true,
+//       style: {},
+//     });
+//   });
 
-  const changeWarningComboStyle = (index) => {
-    console.log(newCombos[index])
-    newCombos[index].style.stroke = 'red';
-  }
+//   const changeWarningComboStyle = (index) => {
+//     newCombos[index].style.stroke = 'red';
+//   }
 
-  const loopComboParents = (combo) => {
-    if (combo.parentId) {
-      let comboIndex = newCombos.findIndex(item => item.id === combo.parentId);
-      changeWarningComboStyle(comboIndex);
-      loopComboParents(newCombos[comboIndex])
-    }
-  }
+//   const loopComboParents = (combo) => {
+//     if (combo.parentId) {
+//       let comboIndex = newCombos.findIndex(item => item.id === combo.parentId);
+//       changeWarningComboStyle(comboIndex);
+//       loopComboParents(newCombos[comboIndex])
+//     }
+//   }
 
-  newCombos.forEach((combo, index) => {
-    let node = nodeData.nodes.find(node => node.comboId === combo.id);
-    
-    if (node.isWarning) {
-      changeWarningComboStyle(index);
-      loopComboParents(combo);
-    }
-  })
+//   newCombos.forEach((combo, index) => {
+//     let node = nodeData.nodes.find(node => node.comboId === combo.id);
+//     if (node?.isWarning) {
+//       changeWarningComboStyle(index);
+//       loopComboParents(combo);
+//     }
+//   })
 
-  return newCombos;
-}
+//   return newCombos;
+// }
 
-nodeData.combos = handleCombos();
+nodeData.combos = combos;
 nodeData.edges = topoData.edges;
 
 export default nodeData;

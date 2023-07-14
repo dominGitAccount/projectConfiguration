@@ -1,23 +1,11 @@
+import React from 'react';
 import { Spin, Card } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import NodeToolTips from './NodeTooltips';
 import './TopoTree.less';
 import G6 from '@antv/g6-3.5';
-import { stringify } from 'qs';
 import 'src/assets/topo/iconfont/iconfont.css';
-
-const EXPAND_ICON = function EXPAND_ICON(x, y, r) {
-  return [
-    ['M', x, y],
-    ['M', x + 2, y],
-    ['L', x + 2 * r - 2, y],
-    ['M', x + r, y - r + 2],
-    ['L', x + r, y + r - 2],
-  ];
-};
-
-
-let jumpWindowIp = 'https://25.8.49.30:8104'
+import { stringify } from 'qs';
 
 const TopoTree = ({
   tachInfo,
@@ -26,7 +14,7 @@ const TopoTree = ({
   topoTreeLoading,
   setTopoTreeLoading,
   tacheParam,
-}) => {
+}) => { 
   let graph = useRef();
 
   // 节点tooltip坐标
@@ -37,7 +25,7 @@ const TopoTree = ({
 
   useEffect(() => {
     registerNode();
-    if (graph.current && graph.current._cfg) {
+    if (graph.current && (graph.current._cfg || graph.current.cfg)) {
       graph.current.destroy();
       graph.current = null;
     }
@@ -52,7 +40,6 @@ const TopoTree = ({
     }
   }, [topologyData]);
 
-
   const initTopo = nodeData => {
     if (!nodeData || !nodeData.edges || !nodeData.nodes) {
       // g6低版本 当为空数据时候，如果配置了 fitView 就会报错。此处特殊处理
@@ -62,6 +49,7 @@ const TopoTree = ({
       // g6低版本 当为空数据时候，如果配置了 fitView 就会报错。此处特殊处理
       return;
     }
+
     let width = document.getElementById('topology').offsetWidth;
     let height = document.getElementById('topology').offsetHeight - 90 || 350;
 
@@ -76,10 +64,11 @@ const TopoTree = ({
       maxZoom: 2,
       layout: {
         type: 'dagre',
+        sortByCombo: false,
         ranksep: 10,
         nodesep: 5,
         controlPoints: true,
-        nodesepFunc: d => 5,
+        nodesepFunc: d => 50,
         ranksepFunc: d => 160,
       },
       defaultNode: {
@@ -123,6 +112,7 @@ const TopoTree = ({
       modes: {
         default: [
           'drag-canvas',
+          'drag-combo',
           {
             type: 'drag-node',
             enableDelegate: true,
@@ -132,45 +122,38 @@ const TopoTree = ({
             // sensitivity: 2,
             minZoom: 0,
           },
+          // 如果没有定制化需求，设置了这个可以不用设置combo:dblclick
+          // {
+          //   type: 'collapse-expand-combo', //支持双击 Combo 收起和展开 Combo ，收起 Combo 以后，隐藏 Combo 中的所有节点
+          //   relayout: false,
+          // },
         ],
         // default: ['drag-node', 'drag-canvas', 'zoom-canvas'],
       },
+      groupByTypes: false,
+      defaultCombo: {
+        size: [100, 50],
+        type: 'cRect',
+        style:{
+          fillOpacity: 0.1,
+          fill: '#99C0ED',
+          stroke: '#aaa',
+        }
+      },
+      comboStateStyles: {
+        dragenter: {
+          lineWidth: 4,
+          stroke: '#FE9797'
+        }
+      },
     });
+
     graph.current.data(nodeData);
     graph.current.render();
     graph.current.fitView();
-
-    nodeData.nodes.forEach(node => {
-      // 判断该节点是不是头结点，则隐藏该节点
-      if (nodeData.edges.findIndex(item => item.target === node.id) > -1) {
-        graph.current.hideItem(node.id);
-      }
-    })
-    // 单击该节点
-    graph.current.on('node:click', ev => {
-      if (ev.target.get('name') === 'add-rect') {
-        // 节点实例
-        let enterNode = ev.item.getModel();
-        nodeData.edges.forEach(edge => {
-          // 找出该节点下的所有子节点---edge.target
-          if (edge.source === enterNode.id) {
-            const item = graph.current.findById(edge.target);
-            // 子节点的显示状态
-            const visible = item.isVisible();
-            if (visible) { //显示---点击父节点则隐藏该节点
-              graph.current.hideItem(edge.target)
-            } else { //隐藏---点击父节点则显示该节点
-              graph.current.showItem(item)
-            }
-          }
-        })
-      }
-    })
-
     graph.current.get('canvas').set('supportCSSTransform', true);
     // 图谱节点双击事件
     graph.current.on('node:dblclick', ev => {
-      if (ev.target.get('name') === 'add-rect') return;
       // 跳转至根因分析
       const { name, systemCode } = ev.item._cfg.model;
       const commonParams = {
@@ -245,6 +228,22 @@ const TopoTree = ({
       edges.forEach(edge => graph.current.setItemState(edge, 'running', false));
       setShowNodeTooltip(false);
     });
+
+    // 双击combo
+    graph.current.on("combo:dblclick", (e) => {
+      // e.item就是当前点击的combo实例;  
+      graph.current?.collapseExpandCombo(e.item); //展开或收起当前combo
+      if (!e.item._cfg.model.collapsed) {  //当前combo是展开状态
+        //combo.getCombos获取当前combo下所有的子combo
+        let childCombos = e.item.getCombos();
+        childCombos?.forEach((combo) => {
+          if (!combo._cfg.model.collapsed) { //如果子combo是展开状态，收起子combo
+            graph.current?.collapseExpandCombo(combo || '');
+          }
+        })
+      }
+    });
+
   };
 
   const registerNode = () => {
@@ -349,14 +348,15 @@ const TopoTree = ({
         },
         draw(cfg, group) {
           const icon = setNodeIcon(cfg.applicationServiceType, cfg.isWarning, cfg.objType);
+          let stroke =  icon[3]
           const shape = group.addShape('rect', {
             attrs: {
               x: -100,
               y: -50,
               width: 200,
               height: 120,
-              radius: topologyData.edges.findIndex(item => item.source === cfg.id) > -1 ? [0, 0, 10, 10] : 10,
-              stroke: icon[3],
+              radius: 10,
+              stroke,
               fill: 'transparent',
               lineWidth: 3,
               cursor: 'pointer',
@@ -386,39 +386,6 @@ const TopoTree = ({
               fontSize: icon[2] / 1.2,
             },
           });
-          // 下面有子节点的增加一个图标
-          if (topologyData.edges.findIndex(item => item.source === cfg.id) > -1) {
-            group.addShape('rect', {
-              attrs: {
-                x: -100,
-                y: -70,
-                width: 200,
-                height: 20,
-                radius: [10, 10, 0, 0],
-                cursor: 'pointer',
-                stroke: icon[3], //边框
-                lineWidth: 3,
-                fill: 'transparent',
-              },
-              draggable: true,
-              name: 'add-rect'
-            });
-            group.addShape('marker', {
-              attrs: {
-                fill: '#fff',
-                x: -10,
-                y: -60,
-                r: 8,
-                symbol: EXPAND_ICON,
-                stroke: icon[3],
-                lineWidth: 2,
-                cursor: 'pointer',
-                zIndex: 999,
-              },
-              draggable: true,
-              name: 'add-marker'
-            });
-          }
           return shape;
         },
         // setState(name, value, item) {
@@ -443,6 +410,29 @@ const TopoTree = ({
       },
       'rect'
     );
+
+    G6.registerCombo('cRect', {
+      drawShape: function drawShape(cfg, group) {
+        const self = this;
+        cfg.padding = cfg.padding || [50, 20, 20, 20];
+        const style = self.getShapeStyle(cfg);
+        const rect = group.addShape('rect', {
+          attrs: {
+            ...style,
+            x: -style.width / 2 - (cfg.padding[3] - cfg.padding[1]) / 2,
+            y: -style.height / 2 - (cfg.padding[0] - cfg.padding[2]) / 2,
+            width: style.width,
+            height: style.height
+          },
+          draggable: true,
+          name: 'combo-keyShape'
+        });
+        return rect;
+      },
+      afterUpdate: function afterUpdate(cfg, combo) {
+      }
+    }, 'rect');
+
   };
   const setNodeIcon = (type, isWarning, objType) => {
     let nodeIcon = [];
@@ -547,10 +537,10 @@ const TopoTree = ({
   };
 
   return (
-    <Spin size="large" wrapperClassName='containerSpin' spinning={setTopoTreeLoading}>
-      <Card className='card' title={<span>【{tachInfo.systemName}】层级拓扑</span>}>
-        <div className='topoTree'>
-          <div key="2" id="topology" className='topoTreeMain'>
+    <Spin size="large" wrapperClassName={'containerSpin'} spinning={setTopoTreeLoading}>
+      <Card className={'card'} title={<span>【{tachInfo.systemName}】层级拓扑</span>}>
+        <div className={'topoTree'}>
+          <div key="2" id="topology" className={'topoTreeMain'}>
             {showNodeTooltip && (
               <NodeToolTips nodeInfo={nodeInfo} x={nodeTooltipX} y={nodeTooltipY} />
             )}

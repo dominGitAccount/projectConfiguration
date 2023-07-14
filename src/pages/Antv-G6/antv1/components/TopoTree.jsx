@@ -14,7 +14,8 @@ const TopoTree = ({
   topoTreeLoading,
   setTopoTreeLoading,
   tacheParam,
-}) => {
+}) => { 
+  console.log(topologyData)
   let graph = useRef();
 
   // 节点tooltip坐标
@@ -123,10 +124,10 @@ const TopoTree = ({
             minZoom: 0,
           },
           // 如果没有定制化需求，设置了这个可以不用设置combo:dblclick
-          {
-            type: 'collapse-expand-combo', //支持双击 Combo 收起和展开 Combo ，收起 Combo 以后，隐藏 Combo 中的所有节点
-            relayout: false,
-          },
+          // {
+          //   type: 'collapse-expand-combo', //支持双击 Combo 收起和展开 Combo ，收起 Combo 以后，隐藏 Combo 中的所有节点
+          //   relayout: false,
+          // },
         ],
         // default: ['drag-node', 'drag-canvas', 'zoom-canvas'],
       },
@@ -348,7 +349,7 @@ const TopoTree = ({
         },
         draw(cfg, group) {
           const icon = setNodeIcon(cfg.applicationServiceType, cfg.isWarning, cfg.objType);
-          let stroke = cfg.isWarning === 1 ? 'red' : icon[3]
+          let stroke =  icon[3]
           const shape = group.addShape('rect', {
             attrs: {
               x: -100,
@@ -371,7 +372,7 @@ const TopoTree = ({
                 textAlign: 'center',
                 textBaseline: 'middle',
                 text: cfg.label ? cfg.label : cfg.serviceName,
-                fill: cfg.isWarning === 1 ? 'red' : '#000',
+                fill: '#000',
               },
             });
           }
